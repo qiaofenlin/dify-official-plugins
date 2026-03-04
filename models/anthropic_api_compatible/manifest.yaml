@@ -1,6 +1,6 @@
 version: 0.0.1
 type: plugin
-author: "wegent"
+author: "langgenius"
 name: "anthropic_api_compatible"
 description:
   en_US: Model providers compatible with Anthropic's API standard, allowing you to use any Anthropic-compatible API endpoint.
