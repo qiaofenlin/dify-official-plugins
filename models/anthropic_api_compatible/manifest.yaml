@@ -1,0 +1,29 @@
+version: 0.0.1
+type: plugin
+author: "langgenius"
+created_at: "2025-03-04T12:00:00.000000000Z"
+name: "anthropic_api_compatible"
+description:
+  en_US: Model providers compatible with Anthropic's API standard.
+  zh_Hans: 兼容 Anthropic API 的模型供应商。
+label:
+  en_US: "Anthropic-API-compatible"
+icon: icon.svg
+resource:
+  memory: 268435456
+  permission:
+    model:
+      enabled: true
+      llm: true
+plugins:
+  models:
+    - "provider/anthropic_api_compatible.yaml"
+meta:
+  version: 0.0.1
+  arch:
+    - "amd64"
+    - "arm64"
+  runner:
+    language: "python"
+    version: "3.12"
+    entrypoint: "main"
