@@ -1,0 +1,102 @@
+provider: anthropic_api_compatible
+label:
+  en_US: Anthropic-API-compatible
+  zh_Hans: Anthropic-API-兼容
+description:
+  en_US: Model providers compatible with Anthropic's API standard.
+  zh_Hans: 兼容 Anthropic API 的模型供应商。
+icon_small:
+  en_US: icon.svg
+supported_model_types:
+  - llm
+configurate_methods:
+  - customizable-model
+model_credential_schema:
+  model:
+    label:
+      en_US: Model Name
+      zh_Hans: 模型名称
+    placeholder:
+      en_US: Enter full model name
+      zh_Hans: 输入模型全称
+  credential_form_schemas:
+    - variable: display_name
+      label:
+        en_US: Model display name
+        zh_Hans: 模型显示名称
+      type: text-input
+      required: false
+      placeholder:
+        zh_Hans: 模型在界面的显示名称
+        en_US: The display name of the model in the interface.
+    - variable: api_key
+      label:
+        en_US: API Key
+        zh_Hans: API Key
+      type: secret-input
+      required: true
+      placeholder:
+        en_US: Enter your API Key
+        zh_Hans: 在此输入您的 API Key
+    - variable: auth_type
+      label:
+        en_US: Authentication Type
+        zh_Hans: 认证方式
+      type: select
+      required: false
+      default: api_key
+      options:
+        - value: api_key
+          label:
+            en_US: API Key (x-api-key header)
+            zh_Hans: API Key (x-api-key 请求头)
+        - value: bearer
+          label:
+            en_US: Bearer Token (Authorization header)
+            zh_Hans: Bearer Token (Authorization 请求头)
+    - variable: endpoint_url
+      label:
+        en_US: API Endpoint URL
+        zh_Hans: API 端点 URL
+      type: text-input
+      required: true
+      placeholder:
+        en_US: Base URL, e.g. https://api.anthropic.com
+        zh_Hans: Base URL, 例如 https://api.anthropic.com
+    - variable: context_size
+      label:
+        en_US: Model context size
+        zh_Hans: 模型上下文长度
+      required: true
+      type: text-input
+      default: "200000"
+      placeholder:
+        en_US: Enter your model context size
+        zh_Hans: 在此输入您的模型上下文长度
+    - variable: max_tokens
+      label:
+        en_US: Max output tokens
+        zh_Hans: 最大输出 Token
+      type: text-input
+      required: false
+      default: "4096"
+      placeholder:
+        en_US: Max output tokens
+        zh_Hans: 最大输出 Token 数量
+    - variable: custom_headers
+      label:
+        en_US: Custom Headers
+        zh_Hans: 自定义请求头
+      type: text-input
+      required: false
+      placeholder:
+        en_US: "key1:value1,key2:value2"
+        zh_Hans: "key1:value1,key2:value2"
+      help:
+        en_US: "Custom headers in format: key1:value1,key2:value2"
+        zh_Hans: "自定义请求头格式：key1:value1,key2:value2"
+extra:
+  python:
+    provider_source: provider/anthropic_api_compatible.py
+    model_sources:
+      - "models/llm/llm.py"
