@@ -1,0 +1,139 @@
+provider: anthropic_api_compatible
+supported_model_types:
+  - llm
+configurate_methods:
+  - customizable-model
+model_credential_schema:
+  model:
+    label:
+      en_US: Model Name
+      zh_Hans: 模型名称
+    placeholder:
+      en_US: Enter model name (e.g., claude-3-opus-20240229)
+      zh_Hans: 输入模型名称（如：claude-3-opus-20240229）
+  credential_form_schemas:
+    - variable: api_key
+      label:
+        en_US: API Key
+        zh_Hans: API Key
+      type: secret-input
+      required: true
+      placeholder:
+        en_US: Enter your Anthropic API Key
+        zh_Hans: 输入您的 Anthropic API Key
+
+    - variable: endpoint_url
+      label:
+        en_US: API Endpoint URL
+        zh_Hans: API 端点 URL
+      type: text-input
+      required: false
+      placeholder:
+        en_US: "https://api.anthropic.com"
+        zh_Hans: "https://api.anthropic.com"
+      default: "https://api.anthropic.com"
+
+    - variable: headers
+      label:
+        en_US: Custom Headers
+        zh_Hans: 自定义请求头
+      type: text-input
+      required: false
+      placeholder:
+        en_US: '{"X-Custom-Header": "value"}'
+        zh_Hans: '{"X-Custom-Header": "value"}'
+      default: "{}"
+
+    - variable: context_size
+      label:
+        en_US: Context Size
+        zh_Hans: 上下文大小
+      type: text-input
+      required: false
+      placeholder:
+        en_US: "200000"
+        zh_Hans: "200000"
+      default: "200000"
+      show_on:
+        - variable: __model_type
+          value: llm
+
+    - variable: max_tokens
+      label:
+        en_US: Max Output Tokens
+        zh_Hans: 最大输出 Tokens
+      type: text-input
+      required: false
+      placeholder:
+        en_US: "4096"
+        zh_Hans: "4096"
+      default: "4096"
+      show_on:
+        - variable: __model_type
+          value: llm
+
+    - variable: vision_support
+      label:
+        en_US: Vision Support
+        zh_Hans: 视觉支持
+      type: select
+      required: false
+      default: support
+      options:
+        - value: support
+          label:
+            en_US: Support
+            zh_Hans: 支持
+        - value: no_support
+          label:
+            en_US: Not Support
+            zh_Hans: 不支持
+      show_on:
+        - variable: __model_type
+          value: llm
+
+    - variable: tool_call_support
+      label:
+        en_US: Tool Call Support
+        zh_Hans: 工具调用支持
+      type: select
+      required: false
+      default: support
+      options:
+        - value: support
+          label:
+            en_US: Support
+            zh_Hans: 支持
+        - value: no_support
+          label:
+            en_US: Not Support
+            zh_Hans: 不支持
+      show_on:
+        - variable: __model_type
+          value: llm
+
+    - variable: stream_mode
+      label:
+        en_US: Stream Mode
+        zh_Hans: 流式模式
+      type: select
+      required: false
+      default: enabled
+      options:
+        - value: enabled
+          label:
+            en_US: Enabled
+            zh_Hans: 启用
+        - value: disabled
+          label:
+            en_US: Disabled
+            zh_Hans: 禁用
+      show_on:
+        - variable: __model_type
+          value: llm
+
+extra:
+  python:
+    provider_source: provider/anthropic_api_compatible.py
+    model_sources:
+      - "models/llm/llm.py"

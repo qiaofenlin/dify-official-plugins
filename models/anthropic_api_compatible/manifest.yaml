@@ -1,0 +1,29 @@
+version: 0.0.1
+type: plugin
+author: "wegent"
+name: "anthropic_api_compatible"
+description:
+  en_US: Model providers compatible with Anthropic's API standard, allowing you to use any Anthropic-compatible API endpoint.
+  zh_Hans: 兼容 Anthropic API 的模型供应商，允许您使用任何兼容 Anthropic API 的接口。
+label:
+  en_US: "Anthropic-API-compatible"
+  zh_Hans: "Anthropic-API兼容"
+icon: icon.svg
+resource:
+  memory: 1048576
+  permission:
+    tool:
+      enabled: true
+    model:
+      enabled: true
+      llm: true
+plugins:
+  models:
+    - "provider/anthropic_api_compatible.yaml"
+meta:
+  version: 0.0.1
+  arch: ["amd64", "arm64"]
+  runner:
+    language: "python"
+    version: "3.12"
+    entrypoint: "main"
