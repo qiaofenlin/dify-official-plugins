@@ -1,0 +1,99 @@
+name: github-events-to-feishu
+
+on:
+  push:
+    branches: ["main"]
+  release:
+    types: [published]
+  issues:
+    types: [opened, closed, reopened]
+  pull_request:
+    types: [opened, closed, reopened]
+  watch:
+    types: [started]
+  fork:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 推送事件到飞书群机器人
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+        run: |
+          python3 <<'PYEOF'
+          import json, os, urllib.request
+
+          webhook = os.environ.get("FEISHU_WEBHOOK", "")
+          if not webhook:
+              print("未配置 FEISHU_WEBHOOK secret，已跳过本次推送")
+              exit(0)
+
+          event_name = os.environ.get("GITHUB_EVENT_NAME", "")
+          actor = os.environ.get("GITHUB_ACTOR", "")
+          repo = os.environ.get("GITHUB_REPOSITORY", "")
+
+          with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as f:
+              payload = json.load(f)
+
+          # 事件类型 -> 中文标题
+          type_titles = {
+              "push": "新提交",
+              "release": "新版本发布",
+              "issues": "Issue 动态",
+              "pull_request": "Pull Request 动态",
+              "watch": "新增 Star",
+              "fork": "新增 Fork",
+          }
+          title = type_titles.get(event_name, event_name)
+
+          # 自己 star / fork 自己的仓库时跳过，避免自触发噪音
+          if event_name == "watch":
+              owner = repo.split("/")[0]
+              if actor == owner:
+                  print("本人操作，跳过")
+                  exit(0)
+
+          lines = []
+          if event_name == "push":
+              commits = payload.get("commits", [])
+              branch = payload.get("ref", "").rsplit("/", 1)[-1] or "main"
+              lines.append("分支：%s，提交 %d 个" % (branch, len(commits)))
+              for c in commits[:5]:
+                  lines.append("- %s（%s）" % (c.get("message", "").splitlines()[0], (c.get("id") or "")[:7]))
+              url = payload.get("compare", "https://github.com/%s/commits/%s" % (repo, branch))
+          elif event_name == "release":
+              rel = payload.get("release", {})
+              lines.append("版本：%s" % rel.get("tag_name", ""))
+              if rel.get("name"):
+                  lines.append(rel.get("name"))
+              url = rel.get("html_url", "https://github.com/%s/releases" % repo)
+          elif event_name == "issues":
+              issue = payload.get("issue", {})
+              lines.append("操作：%s · #%s" % (payload.get("action", ""), issue.get("number", "")))
+              if issue.get("title"):
+                  lines.append(issue.get("title"))
+              url = issue.get("html_url", "https://github.com/%s/issues" % repo)
+          elif event_name == "pull_request":
+              pr = payload.get("pull_request", {})
+              lines.append("操作：%s · #%s" % (payload.get("action", ""), pr.get("number", "")))
+              if pr.get("title"):
+                  lines.append(pr.get("title"))
+              url = pr.get("html_url", "https://github.com/%s/pulls" % repo)
+          elif event_name == "watch":
+              lines.append("仓库获得一个新 Star")
+              url = "https://github.com/%s" % repo
+          elif event_name == "fork":
+              forkee = payload.get("forkee", {})
+              lines.append("Fork 到：%s" % forkee.get("full_name", ""))
+              url = "https://github.com/%s" % repo
+          else:
+              url = "https://github.com/%s" % repo
+
+          content = "仓库：%s\n触发人：%s\n\n%s\n🔗 %s" % (repo, actor, "\n".join(lines), url)
+          msg = {"msg_type": "text", "content": {"text": "【%s】\n%s" % (title, content)}}
+          data = json.dumps(msg).encode("utf-8")
+          req = urllib.request.Request(webhook, data=data, headers={"Content-Type": "application/json"})
+          with urllib.request.urlopen(req, timeout=30) as resp:
+              print("飞书推送结果：", resp.read().decode("utf-8"))
+          PYEOF
